@@ -1,4 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
+import { useCreateServiceMutation } from "../../redux/features/services/servicesApi";
+import { toast } from "react-toastify";
+import { Icon } from "@iconify/react";
 
 export function ServiceForm() {
   const [form, setForm] = useState({
@@ -17,10 +21,22 @@ export function ServiceForm() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [createService, { isLoading }] = useCreateServiceMutation();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Create Service Payload:", form);
-    // call POST /api/services
+    if (!form.name || !form.duration || !form.requiredStaffType) {
+      return toast.error("Please fill in all fields.");
+    }
+    const res = await createService(form);
+    if (res.error) {
+      const error = res.error as any;
+      if (error?.data?.message) {
+        return toast.error(error.data.message);
+      }
+      return toast.error(error.message || "An error occurred");
+    }
+    toast.success("Service created successfully!");
   };
 
   return (
@@ -29,7 +45,7 @@ export function ServiceForm() {
         Create Service
       </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form className="space-y-4">
         <div>
           <label className="mb-1 block text-sm font-medium text-gray-700">
             Service Name
@@ -40,7 +56,7 @@ export function ServiceForm() {
             value={form.name}
             onChange={handleChange}
             placeholder="Consultation / Check-up"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none"
             required
           />
         </div>
@@ -53,7 +69,7 @@ export function ServiceForm() {
             name="duration"
             value={form.duration}
             onChange={handleChange}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none"
           >
             <option value={15}>15 Minutes</option>
             <option value={30}>30 Minutes</option>
@@ -71,16 +87,22 @@ export function ServiceForm() {
             value={form.requiredStaffType}
             onChange={handleChange}
             placeholder="Doctor / Consultant"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none"
             required
           />
         </div>
 
         <button
+          onClick={handleSubmit}
           type="submit"
-          className="w-full rounded-lg bg-emerald-600 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+          className={`w-full rounded-lg  py-2 text-sm font-semibold text-white  flex items-center justify-center ${isLoading ? "bg-gray-300 cursor-not-allowed" : "hover:bg-teal-700 bg-teal-600 cursor-pointer"}`}
+          disabled={isLoading}
         >
-          Save Service
+          {isLoading ? (
+            <Icon icon="line-md:loading-loop" width="24" height="24" />
+          ) : (
+            "Save Service"
+          )}
         </button>
       </form>
     </div>

@@ -1,35 +1,71 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 export function Sidebar() {
   return (
     <aside className="w-64 bg-white border-r p-5">
       <h1 className="text-xl font-bold mb-8">Smart Queue</h1>
 
-      <nav className="space-y-3 text-sm text-gray-700">
+      <nav className="space-y-5 text-md text-gray-700">
         <div>
-          <Link to="/dashboard" className="font-medium cursor-pointer">
+          <NavLink
+            to="/dashboard"
+            className={({ isActive }) =>
+              `font-bold cursor-pointer hover:text-orange-500 ${
+                isActive ? "text-orange-500" : "text-gray-700"
+              }`
+            }
+            end
+          >
             Dashboard
-          </Link>
+          </NavLink>
         </div>
         <div>
-          <Link to="appointments" className="font-medium cursor-pointer">
+          <NavLink
+            to="appointments"
+            className={({ isActive }) =>
+              `font-bold cursor-pointer hover:text-orange-500 ${
+                isActive ? "text-orange-500" : "text-gray-700"
+              }`
+            }
+          >
             Appointments
-          </Link>
+          </NavLink>
         </div>
         <div>
-          <Link to="queues" className="font-medium cursor-pointer">
+          <NavLink
+            to="queues"
+            className={({ isActive }) =>
+              `font-bold cursor-pointer hover:text-orange-500 ${
+                isActive ? "text-orange-500" : "text-gray-700"
+              }`
+            }
+          >
             Queue
-          </Link>
+          </NavLink>
         </div>
         <div>
-          <Link to="staff" className="font-medium cursor-pointer">
+          <NavLink
+            to="staff"
+            className={({ isActive }) =>
+              `font-bold cursor-pointer hover:text-orange-500 ${
+                isActive ? "text-orange-500" : "text-gray-700"
+              }`
+            }
+          >
             Staff
-          </Link>
+          </NavLink>
         </div>
         <div>
-          <Link to="services" className="font-medium cursor-pointer">
+          <NavLink
+            to="services"
+            className={({ isActive }) =>
+              `font-bold cursor-pointer hover:text-orange-500 ${
+                isActive ? "text-orange-500" : "text-gray-700"
+              }`
+            }
+          >
             Services
-          </Link>
+          </NavLink>
         </div>
       </nav>
     </aside>

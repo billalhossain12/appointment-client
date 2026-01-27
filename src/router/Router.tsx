@@ -1,11 +1,12 @@
 import { createBrowserRouter } from "react-router-dom";
 import Login from "../pages/Auth/Login";
-import AppointmentForm from "../pages/Dashboard/AppointmentForm";
+import AppointmentForm from "../pages/Appointments/AppointmentForm";
 import { Layout } from "../components/Layout/Layout";
 import Dashboard from "../pages/Dashboard/Dashboard";
-import QueueList from "../pages/Dashboard/QueueList";
-import { StaffForm } from "../pages/Dashboard/StaffForm";
-import { ServiceForm } from "../pages/Dashboard/ServiceForm";
+import QueueList from "../pages/Queue/QueueList";
+import { StaffForm } from "../pages/Staff/StaffForm";
+import { ServiceForm } from "../pages/Services/ServiceForm";
+import Register from "../pages/Auth/Register";
 
 export const router = createBrowserRouter([
   {
@@ -14,7 +15,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "/register",
-    element: <Login />,
+    element: <Register />,
   },
   {
     path: "/dashboard",

@@ -1,4 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
+import { useCreateStaffMutation } from "../../redux/features/staff/staffApi";
+import { toast } from "react-toastify";
+import { Icon } from "@iconify/react";
 export function StaffForm() {
   const [form, setForm] = useState({
     name: "",
@@ -17,10 +21,27 @@ export function StaffForm() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [createStaff, { isLoading }] = useCreateStaffMutation();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Create Staff Payload:", form);
-    // call POST /api/staff
+    if (
+      !form.dailyCapacity ||
+      !form.serviceType ||
+      !form.name ||
+      !form.status
+    ) {
+      return toast.error("Please fill in all fields.");
+    }
+    const res = await createStaff(form);
+    if (res.error) {
+      const error = res.error as any;
+      if (error?.data?.message) {
+        return toast.error(error.data.message);
+      }
+      return toast.error(error.message || "An error occurred");
+    }
+    toast.success("Staff created successfully!");
   };
 
   return (
@@ -40,7 +61,7 @@ export function StaffForm() {
             value={form.name}
             onChange={handleChange}
             placeholder="e.g. Riya"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none"
             required
           />
         </div>
@@ -55,7 +76,7 @@ export function StaffForm() {
             value={form.serviceType}
             onChange={handleChange}
             placeholder="Doctor / Consultant / Support"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none"
             required
           />
         </div>
@@ -71,7 +92,7 @@ export function StaffForm() {
             min={1}
             max={5}
             onChange={handleChange}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none"
           />
           <p className="mt-1 text-xs text-gray-500">Max appointments per day</p>
         </div>
@@ -84,7 +105,7 @@ export function StaffForm() {
             name="status"
             value={form.status}
             onChange={handleChange}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none"
           >
             <option value="AVAILABLE">Available</option>
             <option value="ON_LEAVE">On Leave</option>
@@ -93,9 +114,14 @@ export function StaffForm() {
 
         <button
           type="submit"
-          className="w-full rounded-lg bg-blue-600 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+          className={`w-full rounded-lg  py-2 text-sm font-semibold text-white  flex items-center justify-center ${isLoading ? "bg-gray-300 cursor-not-allowed" : "hover:bg-teal-700 bg-teal-600 cursor-pointer"}`}
+          disabled={isLoading}
         >
-          Save Staff
+          {isLoading ? (
+            <Icon icon="line-md:loading-loop" width="24" height="24" />
+          ) : (
+            "Save Staff"
+          )}
         </button>
       </form>
     </div>
