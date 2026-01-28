@@ -7,6 +7,7 @@ import QueueList from "../pages/Queue/QueueList";
 import { StaffForm } from "../pages/Staff/StaffForm";
 import { ServiceForm } from "../pages/Services/ServiceForm";
 import Register from "../pages/Auth/Register";
+import { ProtectedRoute } from "./ProtectedRoute";
 
 export const router = createBrowserRouter([
   {
@@ -19,28 +20,32 @@ export const router = createBrowserRouter([
   },
   {
     path: "/dashboard",
-    element: <Layout />,
-    children:[
+    element: (
+      <ProtectedRoute>
+        <Layout />
+      </ProtectedRoute>
+    ),
+    children: [
       {
-        path:'',
-        element:<Dashboard/>
+        path: "",
+        element: <Dashboard />,
       },
       {
-        path:'appointments',
-        element:<AppointmentForm/>
+        path: "appointments",
+        element: <AppointmentForm />,
       },
       {
-        path:'queues',
-        element:<QueueList/>
+        path: "queues",
+        element: <QueueList />,
       },
       {
-        path:'staff',
-        element:<StaffForm/>
+        path: "staff",
+        element: <StaffForm />,
       },
       {
-        path:'services',
-        element:<ServiceForm/>
+        path: "services",
+        element: <ServiceForm />,
       },
-    ]
+    ],
   },
 ]);

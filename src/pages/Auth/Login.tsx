@@ -3,6 +3,9 @@ import { useState } from "react";
 import { useLoginMutation } from "../../redux/features/auth/authApi";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useAppDispatch } from "../../redux/hooks";
+import { setUser, type TUser } from "../../redux/features/auth/authSlice";
+import { verifyToken } from "../../utils/verifyToken";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -11,6 +14,7 @@ export default function Login() {
   const [showError, setShowError] = useState(false);
 
   const [login] = useLoginMutation();
+  const dispatch = useAppDispatch();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -25,6 +29,10 @@ export default function Login() {
       }
       return toast.error(error.message || "An error occurred");
     }
+    const token = res?.data?.data?.accessToken;
+    const user = verifyToken(token) as TUser;
+    dispatch(setUser({ user, token }));
+
     toast.success("Login success!");
     navigate("/dashboard");
   };
