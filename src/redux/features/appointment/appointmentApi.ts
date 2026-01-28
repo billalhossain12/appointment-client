@@ -8,7 +8,7 @@ const appointmentApi = baseApi.injectEndpoints({
         method: "POST",
         body: serviceData,
       }),
-      invalidatesTags: ["Appointments"],
+      invalidatesTags: ["Appointments", "Staffs"],
     }),
 
     getAppointments: builder.query({
@@ -56,5 +56,5 @@ export const {
   useGetAppointmentsQuery,
   useGetSingleAppointmentQuery,
   useUpdateAppointmentMutation,
-  useDeleteAppointmentMutation
+  useDeleteAppointmentMutation,
 } = appointmentApi;

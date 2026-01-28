@@ -14,6 +14,7 @@ const staffApi = baseApi.injectEndpoints({
         url: "/staffs/load",
         method: "GET",
       }),
+      providesTags: ["Staffs"],
     }),
   }),
 });

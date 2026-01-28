@@ -66,7 +66,7 @@ export default function AppointmentForm() {
       setErrorTxt(error.message || "An error occurred");
       return toast.error(error.message || "An error occurred");
     }
-    toast.success("Staff created successfully!");
+    toast.success("Appointment is created successfully!");
   };
 
   return (
@@ -111,8 +111,7 @@ export default function AppointmentForm() {
                   {load.todayLoad >= load.dailyCapacity ? "— Full" : ""}
                 </option>
               );
-            })
-            }
+            })}
           </select>
 
           <div className="flex gap-3">
