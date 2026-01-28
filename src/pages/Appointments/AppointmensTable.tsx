@@ -308,10 +308,7 @@ export default function AppointmentsTable() {
                       </td>
 
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button className="text-teal-600 hover:text-teal-900 mr-3">
-                          <Icon icon="mdi:eye" width="18" />
-                        </button>
-                        <button className="text-blue-600 hover:text-blue-900 mr-3">
+                        <button className="text-teal-600 hover:text-teal-900 mr-3 border border-teal-500 p-1 rounded-md">
                           <AppointmentEditModal
                             updatableAppointment={appointment}
                           />
@@ -320,7 +317,7 @@ export default function AppointmentsTable() {
                           onClick={() =>
                             handleDeleteAppointment(appointment._id, index)
                           }
-                          className="text-red-600 hover:text-red-900"
+                          className="text-red-600 hover:text-red-900 mr-3 border border-red-500 p-1 rounded-md cursor-pointer"
                           disabled={isDeletingAppointment}
                         >
                           {isDeletingAppointment && deletingIndex == index ? (
