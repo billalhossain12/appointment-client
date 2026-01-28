@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { useGetStaffLoadsQuery } from "../../redux/features/staff/staffApi";
 import { useGetServicesQuery } from "../../redux/features/services/servicesApi";
 import { useUpdateAppointmentMutation } from "../../redux/features/appointment/appointmentApi";
+import moment from "moment";
 
 export interface StaffLoad {
   staffId: string;
@@ -74,15 +75,20 @@ const AppointmentEditModal = ({
 
   const showModal = () => {
     setIsModalOpen(true);
-    const dateObj = new Date(updatableAppointment?.startTime);
-    const datePart = dateObj.toISOString().split("T")[0];
-    const timePart = dateObj.toISOString().split("T")[1].slice(0, 5);
-    console.log("date & time==========> ", datePart, timePart);
+
+    const time24Hour = moment(updatableAppointment?.startTime).format(
+      "HH:mm:ss",
+    );
+    const datePart = moment(updatableAppointment?.startTime).format(
+      "YYYY-MM-DD",
+    );
     // Setting the dynamic values
     setCustomerName(updatableAppointment.customerName);
     setService(updatableAppointment.service._id);
     setStaff(updatableAppointment.staff._id);
     setStatus(updatableAppointment.status);
+    setDate(datePart);
+    setTime(time24Hour);
   };
 
   const [updateAppointment, { isLoading }] = useUpdateAppointmentMutation();
@@ -194,13 +200,18 @@ const AppointmentEditModal = ({
 
             <div className="flex gap-3">
               <input
-                onChange={(e) => setDate(e.target.value)}
+                onChange={(e) => {
+                  console.log("Changed Date ==========> ", e.target.value);
+                  setDate(e.target.value);
+                }}
                 value={date}
                 type="date"
                 className="flex-1 px-3 py-2 border rounded-lg"
               />
               <input
-                onChange={(e) => setTime(e.target.value)}
+                onChange={(e) => {
+                  setTime(e.target.value);
+                }}
                 value={time}
                 type="time"
                 className="flex-1 px-3 py-2 border rounded-lg"
