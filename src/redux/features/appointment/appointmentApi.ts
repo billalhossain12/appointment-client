@@ -37,7 +37,7 @@ const appointmentApi = baseApi.injectEndpoints({
           body: data,
         };
       },
-      invalidatesTags: ["Appointments"],
+      invalidatesTags: ["Appointments", "Staffs"],
     }),
     deleteAppointment: builder.mutation({
       query: (id) => {
