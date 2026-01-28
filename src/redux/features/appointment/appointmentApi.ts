@@ -30,11 +30,20 @@ const appointmentApi = baseApi.injectEndpoints({
     }),
 
     updateAppointment: builder.mutation({
-      query: ({id, data}) => {
+      query: ({ id, data }) => {
         return {
           url: `/appointments/${id}`,
           method: "PUT",
           body: data,
+        };
+      },
+      invalidatesTags: ["Appointments"],
+    }),
+    deleteAppointment: builder.mutation({
+      query: (id) => {
+        return {
+          url: `/appointments/${id}`,
+          method: "DELETE",
         };
       },
       invalidatesTags: ["Appointments"],
@@ -47,4 +56,5 @@ export const {
   useGetAppointmentsQuery,
   useGetSingleAppointmentQuery,
   useUpdateAppointmentMutation,
+  useDeleteAppointmentMutation
 } = appointmentApi;

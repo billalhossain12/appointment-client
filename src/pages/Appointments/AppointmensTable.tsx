@@ -1,8 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Icon } from "@iconify/react";
-import { useState, useEffect } from "react";
-import { useGetAppointmentsQuery } from "../../redux/features/appointment/appointmentApi";
+import { useState } from "react";
+import {
+  useDeleteAppointmentMutation,
+  useGetAppointmentsQuery,
+} from "../../redux/features/appointment/appointmentApi";
 import AppointmentEditModal from "./AppointmentEditModal";
+import { toast } from "react-toastify";
 
 export interface Service {
   _id: string;
@@ -45,7 +49,24 @@ export default function AppointmentsTable() {
   const [filter, setFilter] = useState<"all" | "assigned" | "not-queued">(
     "assigned",
   );
+  const [deletingIndex, setDeletingIndex] = useState<number>();
   const { data, isLoading, refetch } = useGetAppointmentsQuery(undefined);
+  const [deleteAppointment, { isLoading: isDeletingAppointment }] =
+    useDeleteAppointmentMutation();
+
+  const handleDeleteAppointment = async (id: string, index: number) => {
+    const isConfirmed = window.confirm("Are you sure?");
+    if (!isConfirmed) return;
+    setDeletingIndex(index);
+    const res = await deleteAppointment(id);
+    if (res.error) {
+      const error = res.error as any;
+      if (error?.data?.message) {
+        return toast.error(error.data.message);
+      }
+    }
+    toast.success("Appointment is deleted successfully!");
+  };
 
   // Filter appointments
   const filteredAppointments =
@@ -91,15 +112,6 @@ export default function AppointmentsTable() {
         return "bg-gray-100 text-gray-800";
     }
   };
-
-  // Refresh data periodically
-  useEffect(() => {
-    const interval = setInterval(() => {
-      refetch();
-    }, 30000); // Refresh every 30 seconds
-
-    return () => clearInterval(interval);
-  }, [refetch]);
 
   return (
     <div className="bg-white border rounded-xl p-6">
@@ -200,113 +212,132 @@ export default function AppointmentsTable() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredAppointments.map((appointment: Appointment) => {
-                const { date, time } = formatDateTime(appointment.startTime);
-                const isAssigned =
-                  appointment.staff !== null && appointment.staff !== undefined;
-                const staffName = isAssigned
-                  ? typeof appointment.staff === "object"
-                    ? appointment.staff.name
-                    : "Assigned"
-                  : "Not Assigned";
+              {filteredAppointments.map(
+                (appointment: Appointment, index: number) => {
+                  const { date, time } = formatDateTime(appointment.startTime);
+                  const isAssigned =
+                    appointment.staff !== null &&
+                    appointment.staff !== undefined;
+                  const staffName = isAssigned
+                    ? typeof appointment.staff === "object"
+                      ? appointment.staff.name
+                      : "Assigned"
+                    : "Not Assigned";
 
-                const serviceName =
-                  typeof appointment.service === "object"
-                    ? appointment.service.name
-                    : "Service";
+                  const serviceName =
+                    typeof appointment.service === "object"
+                      ? appointment.service.name
+                      : "Service";
 
-                return (
-                  <tr
-                    key={appointment._id}
-                    className="hover:bg-gray-50 transition"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10 bg-teal-100 rounded-full flex items-center justify-center">
-                          <span className="text-teal-800 font-semibold">
-                            {appointment.customerName.charAt(0).toUpperCase()}
+                  return (
+                    <tr
+                      key={appointment._id}
+                      className="hover:bg-gray-50 transition"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-10 w-10 bg-teal-100 rounded-full flex items-center justify-center">
+                            <span className="text-teal-800 font-semibold">
+                              {appointment.customerName.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">
+                              {appointment.customerName}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              ID: {appointment._id.slice(-6)}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {serviceName}
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          {isAssigned ? (
+                            <>
+                              <span className="h-2 w-2 bg-green-400 rounded-full mr-2"></span>
+                              <span className="text-sm text-gray-900">
+                                {staffName}
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="h-2 w-2 bg-yellow-400 rounded-full mr-2"></span>
+                              <span className="text-sm text-gray-500 italic">
+                                Pending Assignment
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{date}</div>
+                        <div className="text-sm text-gray-500">{time}</div>
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(appointment.status)}`}
+                        >
+                          {appointment.status}
+                        </span>
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {appointment.isQueued ? (
+                          <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
+                            <Icon
+                              icon="mdi:clock-outline"
+                              className="inline mr-1"
+                            />
+                            In Queue
                           </span>
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {appointment.customerName}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            ID: {appointment._id.slice(-6)}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{serviceName}</div>
-                    </td>
-
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        {isAssigned ? (
-                          <>
-                            <span className="h-2 w-2 bg-green-400 rounded-full mr-2"></span>
-                            <span className="text-sm text-gray-900">
-                              {staffName}
-                            </span>
-                          </>
                         ) : (
-                          <>
-                            <span className="h-2 w-2 bg-yellow-400 rounded-full mr-2"></span>
-                            <span className="text-sm text-gray-500 italic">
-                              Pending Assignment
-                            </span>
-                          </>
+                          <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded-full">
+                            Direct
+                          </span>
                         )}
-                      </div>
-                    </td>
+                      </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{date}</div>
-                      <div className="text-sm text-gray-500">{time}</div>
-                    </td>
-
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(appointment.status)}`}
-                      >
-                        {appointment.status}
-                      </span>
-                    </td>
-
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {appointment.isQueued ? (
-                        <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
-                          <Icon
-                            icon="mdi:clock-outline"
-                            className="inline mr-1"
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button className="text-teal-600 hover:text-teal-900 mr-3">
+                          <Icon icon="mdi:eye" width="18" />
+                        </button>
+                        <button className="text-blue-600 hover:text-blue-900 mr-3">
+                          <AppointmentEditModal
+                            updatableAppointment={appointment}
                           />
-                          In Queue
-                        </span>
-                      ) : (
-                        <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded-full">
-                          Direct
-                        </span>
-                      )}
-                    </td>
-
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button className="text-teal-600 hover:text-teal-900 mr-3">
-                        <Icon icon="mdi:eye" width="18" />
-                      </button>
-                      <button className="text-blue-600 hover:text-blue-900 mr-3">
-                        <AppointmentEditModal
-                          updatableAppointment={appointment}
-                        />
-                      </button>
-                      <button className="text-red-600 hover:text-red-900">
-                        <Icon icon="mdi:delete" width="18" />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleDeleteAppointment(appointment._id, index)
+                          }
+                          className="text-red-600 hover:text-red-900"
+                          disabled={isDeletingAppointment}
+                        >
+                          {isDeletingAppointment && deletingIndex == index ? (
+                            <Icon
+                              icon="line-md:loading-loop"
+                              width="18"
+                              height="18"
+                            />
+                          ) : (
+                            <Icon icon="mdi:delete" width="18" />
+                          )}
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                },
+              )}
             </tbody>
           </table>
         </div>
