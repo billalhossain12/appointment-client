@@ -30,10 +30,9 @@ const appointmentApi = baseApi.injectEndpoints({
     }),
 
     updateAppointment: builder.mutation({
-      query: (data) => {
-        console.log("update data", data);
+      query: ({id, data}) => {
         return {
-          url: `/appointments/${data._id}`,
+          url: `/appointments/${id}`,
           method: "PUT",
           body: data,
         };

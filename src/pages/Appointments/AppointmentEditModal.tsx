@@ -100,13 +100,18 @@ const AppointmentEditModal = ({
     // Combine date and time into ISO format
     const startTime = new Date(`${date}T${time}`).toISOString();
 
-    const appointmendData = {
+    const updateData = {
       customerName,
       service,
       staff: staff ? staff : null,
       startTime,
+      status
     };
-    const res = await updateAppointment(appointmendData);
+
+    const res = await updateAppointment({
+      id: updatableAppointment._id,
+      data: updateData,
+    });
     if (res.error) {
       const error = res.error as any;
       if (error?.data?.message) {
@@ -116,7 +121,7 @@ const AppointmentEditModal = ({
       setErrorTxt(error.message || "An error occurred");
       return toast.error(error.message || "An error occurred");
     }
-    toast.success("Staff created successfully!");
+    toast.success("Appointment is updated successfully!");
     setIsModalOpen(false);
   };
 
