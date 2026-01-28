@@ -206,7 +206,6 @@ const AppointmentEditModal = ({
             <div className="flex gap-3">
               <input
                 onChange={(e) => {
-                  console.log("Changed Date ==========> ", e.target.value);
                   setDate(e.target.value);
                 }}
                 value={date}

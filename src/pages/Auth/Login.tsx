@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { useAppDispatch } from "../../redux/hooks";
 import { setUser, type TUser } from "../../redux/features/auth/authSlice";
 import { verifyToken } from "../../utils/verifyToken";
+import { Icon } from "@iconify/react";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ export default function Login() {
   const [email, setEmail] = useState<string>("");
   const [showError, setShowError] = useState(false);
 
-  const [login] = useLoginMutation();
+  const [login, {isLoading}] = useLoginMutation();
   const dispatch = useAppDispatch();
 
   const handleLogin = async () => {
@@ -77,10 +78,16 @@ export default function Login() {
         </div>
 
         <button
+          type="submit"
+          className={`w-full rounded-lg  py-2 text-sm font-semibold text-white  flex items-center justify-center ${isLoading ? "bg-gray-300 cursor-not-allowed" : "hover:bg-teal-700 bg-teal-600 cursor-pointer"}`}
+          disabled={isLoading}
           onClick={handleLogin}
-          className="w-full cursor-pointer bg-teal-600 text-white py-2 rounded-lg font-medium hover:bg-teal-700 transition"
         >
-          Login
+          {isLoading ? (
+            <Icon icon="line-md:loading-loop" width="24" height="24" />
+          ) : (
+            "Login"
+          )}
         </button>
 
         <button

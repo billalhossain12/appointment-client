@@ -7,6 +7,7 @@ import moment from "moment";
 import { useGetStaffLoadsQuery } from "../../redux/features/staff/staffApi";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { Icon } from "@iconify/react";
 
 export interface Queue {
   _id: string;
@@ -41,7 +42,7 @@ export default function QueueList() {
     refetchOnMountOrArgChange: true,
   });
   const { data: staffLoads } = useGetStaffLoadsQuery(undefined);
-  const [assignFromQueueds] = useAssignFromQueuedsMutation();
+  const [assignFromQueueds, { isLoading }] = useAssignFromQueuedsMutation();
 
   const handleAssign = async () => {
     if (!staff) {
@@ -92,10 +93,16 @@ export default function QueueList() {
                   })}
                 </select>
                 <button
+                  type="submit"
+                  className={`w-full rounded-lg  py-2 text-sm font-semibold text-white  flex items-center justify-center ${isLoading ? "bg-gray-300 cursor-not-allowed" : "hover:bg-teal-700 bg-teal-600 cursor-pointer"}`}
+                  disabled={isLoading}
                   onClick={handleAssign}
-                  className="border border-teal-500 rounded-md px-4 py-2 ml-2 cursor-pointer hover:bg-teal-600 hover:text-white font-semibold"
                 >
-                  Assign
+                  {isLoading ? (
+                    <Icon icon="line-md:loading-loop" width="24" height="24" />
+                  ) : (
+                    "Assign"
+                  )}
                 </button>
               </div>
             </li>
