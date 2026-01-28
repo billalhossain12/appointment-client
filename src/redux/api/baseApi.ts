@@ -11,7 +11,10 @@ import type { RootState } from "../store";
 import { logout, setUser } from "../features/auth/authSlice";
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: "http://localhost:5000/api/v1",
+  baseUrl:
+    import.meta.env.MODE == "development"
+      ? "http://localhost:5000/api/v1"
+      : "https://appointment-manager-server.vercel.app/api/v1",
   credentials: "include",
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).auth.token;
@@ -29,13 +32,12 @@ const baseQueryWithRefreshToken: BaseQueryFn<
   DefinitionType
 > = async (args, api, extraOptions): Promise<any> => {
   let result = await baseQuery(args, api, extraOptions);
-  // if (result?.error?.status === 404) {
-  //   toast.error("User not found!");
-  // }
 
   if (result?.error?.status === 401) {
     const res = await fetch(
-      "http://localhost:5000/api/v1/auth-routes/refresh-token",
+      import.meta.env.MODE == "development"
+        ? "http://localhost:5000/api/v1/auth-routes/refresh-token"
+        : "https://appointment-manager-server.vercel.app/api/v1/auth-routes/refresh-token",
       {
         method: "POST",
         credentials: "include",
